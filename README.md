@@ -29,6 +29,7 @@ java -jar bible-concordance-creator.jar [OUTPUT-FORMAT] [SOURCE-BIBLE-TEXT-FILE-
 
 # Supported formats:
 1. WordDocument
+2. WordDocumentByLetters
 
 # Where to get Bible Databases?
 1. Download the Bible Databases along with *-information.ini files from [https://github.com/yesudas/all-bible-databases/tree/main/Bibles/TheWord-Bible-Databases/Tamil](https://github.com/yesudas/all-bible-databases/tree/main/Bibles/TheWord-Bible-Databases/Tamil)

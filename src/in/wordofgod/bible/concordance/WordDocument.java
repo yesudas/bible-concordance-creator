@@ -56,7 +56,6 @@ public class WordDocument {
 	private static Map<String, TreeSet<String>> indexMap = new TreeMap<String, TreeSet<String>>();
 
 	private static String LANGUAGE_NAME = "ta";
-	//private static final String OUTPUT_FOLDER = "D:\\GitLab\\WOG\\wog-json-utilities\\Output\\Bible-Concordance\\2022\\";
 	
 	private static int totalReferencesCount = 0;
 	private static int uniqueBookMarkCounter = 1;
@@ -155,14 +154,7 @@ public class WordDocument {
 				CTShd cTShd = run.getCTR().addNewRPr().addNewShd();
 				cTShd.setVal(STShd.CLEAR);
 				cTShd.setFill("ABABAB");
-/*
-				CTBookmark bookmark = paragraph.getCTP().addNewBookmarkStart();
-				bookmark.setName(indexLetter);
-				bookmark.setId(BigInteger.valueOf(uniqueBookMarkCounter));
-				paragraph.getCTP().addNewBookmarkEnd().setId(BigInteger.valueOf(uniqueBookMarkCounter));
-				uniqueBookMarkCounter++;
-				run.setText(" ");
-*/
+
 				int counter = 1;
 				for (String word : wordList) {
 					if(LIMIT_OUTPUT) {
@@ -564,67 +556,7 @@ public class WordDocument {
 
 		System.out.println("Index Creation Completed...");
 
-	}/*
-		 * 
-		 * private static void createSubIndex(XWPFDocument document) throws Exception {
-		 * 
-		 * if (indexMap.isEmpty()) { return; }
-		 * 
-		 * System.out.println("Sub Index Creation Started..."); XWPFParagraph paragraph;
-		 * XWPFRun run = null;
-		 * 
-		 * paragraph = document.createParagraph();
-		 * paragraph.setAlignment(ParagraphAlignment.CENTER);
-		 * paragraph.setStyle("Heading1");
-		 * 
-		 * //Sub Index Page Heading run = paragraph.createRun();
-		 * run.setFontFamily(language.getSTR_INDEX_TITLE_FONT());
-		 * run.setFontSize(language.getSTR_INDEX_TITLE_FONT_SIZE());
-		 * run.setText(language.getSTR_INDEX_TITLE()); CTShd cTShd =
-		 * run.getCTR().addNewRPr().addNewShd(); cTShd.setVal(STShd.CLEAR);
-		 * cTShd.setFill("ABABAB");
-		 * 
-		 * CTBookmark bookmark = paragraph.getCTP().addNewBookmarkStart();
-		 * bookmark.setName(language.getSTR_INDEX_TITLE());
-		 * bookmark.setId(BigInteger.valueOf(uniqueBookMarkCounter));
-		 * paragraph.getCTP().addNewBookmarkEnd().setId(BigInteger.valueOf(
-		 * uniqueBookMarkCounter)); uniqueBookMarkCounter++;
-		 * 
-		 * paragraph = document.createParagraph();
-		 * paragraph.setSpacingAfter(language.getPARAGRAPH_SPACING_AFTER()); for
-		 * (Map.Entry<String, TreeSet<String>> entry : indexMap.entrySet()) { String
-		 * indexLetter = entry.getKey(); createAnchorLink(paragraph, indexLetter,
-		 * indexLetter, false); }
-		 * 
-		 * for (Map.Entry<String, TreeSet<String>> entry : indexMap.entrySet()) { String
-		 * indexLetter = entry.getKey();
-		 * 
-		 * paragraph = document.createParagraph();
-		 * paragraph.setAlignment(ParagraphAlignment.CENTER); run =
-		 * paragraph.createRun(); run.addBreak(BreakType.PAGE);
-		 * 
-		 * run.setFontFamily(language.getSTR_INDEX_FONT());
-		 * run.setFontSize(language.getSTR_INDEX_FONT_SIZE()); run.setText(indexLetter);
-		 * cTShd = run.getCTR().addNewRPr().addNewShd(); cTShd.setVal(STShd.CLEAR);
-		 * cTShd.setFill("ABABAB");
-		 * 
-		 * bookmark = paragraph.getCTP().addNewBookmarkStart();
-		 * bookmark.setName(indexLetter);
-		 * bookmark.setId(BigInteger.valueOf(uniqueBookMarkCounter));
-		 * paragraph.getCTP().addNewBookmarkEnd().setId(BigInteger.valueOf(
-		 * uniqueBookMarkCounter)); uniqueBookMarkCounter++;
-		 * 
-		 * paragraph = document.createParagraph();
-		 * paragraph.setSpacingAfter(language.getPARAGRAPH_SPACING_AFTER()); int counter
-		 * = 1; for(String word: entry.getValue()) { if(LIMIT_OUTPUT) { if (counter >
-		 * 10) { break; } counter++; } createAnchorLink(paragraph, word, word, true); }
-		 * 
-		 * }
-		 * 
-		 * System.out.println("Sub Index Creation Completed...");
-		 * 
-		 * }
-		 */
+	}
 
 	private static void createAnchorLink(XWPFParagraph paragraph, String linkText, String bookMarkName, boolean subIndex) {
 		CTHyperlink cthyperLink = paragraph.getCTP().addNewHyperlink();

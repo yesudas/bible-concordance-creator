@@ -8,7 +8,7 @@ public class BibleConcordanceLanguageTamil implements BibleConcordanceLanguage {
 	private final String STR_AUTHOR = "Yesudas Solomon";
 	private final String STR_CREATOR = "Yesudas Solomon, www.WordOfGod.in";
 
-	private final String SUB_TITLE_1 = "பரிசுத்த வேதாகம ஒத்த வாக்கிய விளக்கவுரை [பழைய திருப்புதல்]";
+	private final String SUB_TITLE_1 = "ஒத்த வாக்கிய விளக்கவுரை";
 	private final String SUB_TITLE_1_FONT = "Uni Ila.Sundaram-08";
 	private final int SUB_TITLE_1_FONT_SIZE = 45;
 
@@ -16,7 +16,7 @@ public class BibleConcordanceLanguageTamil implements BibleConcordanceLanguage {
 	private final String SUB_TITLE_2_FONT = "Uni Ila.Sundaram-08";
 	private final int SUB_TITLE_2_FONT_SIZE = 32;
 
-	private final String STR_INDEX_TITLE = "அட்டவணை";
+	private final String STR_INDEX_TITLE = ". அட்டவணை .";
 	private final String STR_INDEX_TITLE_FONT = "Uni Ila.Sundaram-02";
 	private final int STR_INDEX_TITLE_FONT_SIZE = 18;
 
@@ -45,7 +45,7 @@ public class BibleConcordanceLanguageTamil implements BibleConcordanceLanguage {
 	private final int STR_PDF_INDEX_ISSUE_FONT_SIZE = 16;
 
 	private final String CHAPTER_HEADING_FONT = "Uni Ila.Sundaram-02";
-	private final int CHAPTER_HEADING_FONT_SIZE = 10;
+	private final int CHAPTER_HEADING_FONT_SIZE = 12;
 
 	private final String DAY_TITLE_FONT = "Uni Ila.Sundaram-08";
 	private final int DAY_TITLE_FONT_SIZE = 28;
@@ -64,12 +64,12 @@ public class BibleConcordanceLanguageTamil implements BibleConcordanceLanguage {
 	static {
 		stringsMap.put(BibleConcordanceLanguage.BOOK_DETAILS_FONT, "Calibri (Body)");
 		stringsMap.put(BibleConcordanceLanguage.BOOK_DETAILS_FONT_SIZE, 14);
-		stringsMap.put(BibleConcordanceLanguage.STR_BOOK_NO, "WOG BOOKS 40");
-		stringsMap.put(BibleConcordanceLanguage.STR_BOOK_EDITION, "Second Edition 2022");
+		stringsMap.put(BibleConcordanceLanguage.STR_BOOK_NO, "WOG BOOKS 190");
+		stringsMap.put(BibleConcordanceLanguage.STR_BOOK_EDITION, "First Edition 2025");
 		stringsMap.put(BibleConcordanceLanguage.STR_AUTHOR_DETAILS, "Yesudas Solomon");
 		stringsMap.put(BibleConcordanceLanguage.STR_COPYRIGHT_DETAILS, "This book is not copyright protected. You are free to download, print and make copies without any permission from us.");
 		stringsMap.put(BibleConcordanceLanguage.STR_DOWNLOAD_DETAILS, "www.WordOfGod.in and www.Archive.org");
-		stringsMap.put(BibleConcordanceLanguage.STR_CONTACT_US_DETAILS, "Email: wordofgod@wordofgod.in\nMobile/WhatsApp:  \n+91 90190 49070 or +91 7676 50 5599\n"
+		stringsMap.put(BibleConcordanceLanguage.STR_CONTACT_US_DETAILS, "Email: wordofgod@wordofgod.in\nMobile/WhatsApp:  \n+91 95970 37781 or +91 7676 50 5599\n"
 				+ "YouTube: Bible Minutes\nFacebook: Bible Minutes\n");
 		stringsMap.put(BibleConcordanceLanguage.STR_THANKS_TO, "நன்றிகள் பல");
 		stringsMap.put(BibleConcordanceLanguage.STR_THANKS_FONT, "Uni Ila.Sundaram-06");

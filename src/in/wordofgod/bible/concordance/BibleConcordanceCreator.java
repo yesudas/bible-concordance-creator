@@ -25,10 +25,10 @@ public class BibleConcordanceCreator {
 	 * @param args
 	 * @throws IOException
 	 * @throws FileNotFoundException
-	 * @throws URISyntaxException 
+	 * @throws URISyntaxException
 	 */
-	public static void main(String[] args)
-			throws ParserConfigurationException, TransformerException, FileNotFoundException, IOException, URISyntaxException {
+	public static void main(String[] args) throws ParserConfigurationException, TransformerException,
+			FileNotFoundException, IOException, URISyntaxException {
 
 		if (!validateInput(args)) {
 			return;
@@ -37,6 +37,9 @@ public class BibleConcordanceCreator {
 		switch (outputFormat.toUpperCase()) {
 		case Constants.WORD_DOCUMENT:
 			WordDocument.createWordDocument();
+			break;
+		case Constants.WORD_DOCUMENT_BY_LETTERS:
+			WordDocumentByLetters.createWordDocument();
 			break;
 		default:
 			System.out.println("Given format is not supported, pls check the supported format below.");
@@ -79,7 +82,7 @@ public class BibleConcordanceCreator {
 
 	public static void printHelpMessage() {
 		System.out.println("\nHelp on Usage of this program:");
-		System.out.println("\nSupported formats:\n\t1. WordDocument\n");
+		System.out.println("\nSupported formats:\n\t1. WordDocument\n\t2. WordDocumentByLetters\n");
 		System.out.println(
 				"\nSyntax to run this program:\njava -jar bible-concordance-creator.jar [OUTPUT-FORMAT] [SOURCE-BIBLE-TEXT-FILE-PATH] [BIBLE-INFORMATION-FILE-PATH]");
 		System.out.println(
