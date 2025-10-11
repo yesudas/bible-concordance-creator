@@ -108,7 +108,7 @@ public class WordDocumentByLetters {
 
 		// Write the Document in file system
 
-		String wordDocFolder = BibleConcordanceCreator.outputPath + "\\" + LANGUAGE_NAME + "\\" + bible.getAbbr()
+		String wordDocFolder = BibleConcordanceCreator.outputPath + "\\WordDocumentByLetters\\" + LANGUAGE_NAME + "\\" + bible.getAbbr()
 				+ "\\";
 		File wordDocFolderFile = new File(wordDocFolder);
 		wordDocFolderFile.mkdirs();
@@ -191,9 +191,9 @@ public class WordDocumentByLetters {
 						run.setFontSize(language.getVERSE_FONT_SIZE());
 						run.setBold(false);
 						if ("en".equalsIgnoreCase(LANGUAGE_NAME)) {
-							run.setText(StringUtils.capitalize(getOneLiner(word, verse)));
+							run.setText(StringUtils.capitalize(Utils.getOneLiner(word, verse, LANGUAGE_NAME)));
 						} else {
-							run.setText(getOneLiner(word, verse));
+							run.setText(Utils.getOneLiner(word, verse, LANGUAGE_NAME));
 						}
 					}
 				}
@@ -318,47 +318,6 @@ public class WordDocumentByLetters {
 		run.addBreak();
 
 		run.addBreak(BreakType.PAGE);
-	}
-
-	private static String getOneLiner(String word, VerseDetails verse) {
-		int beginningIndex = 0;
-		int endingIndex = 0;
-		String verseText = verse.getVerse();
-		if ("en".equalsIgnoreCase(LANGUAGE_NAME)) {
-			verseText = verseText.toLowerCase();
-			word = word.toLowerCase();
-		}
-
-		beginningIndex = verseText.indexOf(word);
-		endingIndex = verseText.length();
-		try {
-			String temp = verseText.substring(beginningIndex, endingIndex);
-			String[] ar = temp.split(" ");
-			String reference = verse.getBook() + " " + verse.getChapter() + ":" + verse.getVerseNo();
-			if (ar.length > 2) {
-				return ar[0] + " " + ar[1] + " " + ar[2] + " - " + reference;
-			} else if (ar.length > 1) {
-				return ar[0] + " " + ar[1] + " - " + reference;
-			} else {
-				beginningIndex = 0;
-				endingIndex = verseText.lastIndexOf(word);
-				temp = verseText.substring(beginningIndex, endingIndex);
-				ar = temp.split(" ");
-				if (ar.length > 1) {
-					return ar[ar.length - 2] + " " + ar[ar.length - 1] + " " + word + " - " + reference;
-				} else {
-					return ar[ar.length - 1] + " " + word + " - " + reference;
-				}
-			}
-		} catch (java.lang.StringIndexOutOfBoundsException e) {
-			System.out.println(word);
-			System.out
-					.println(verseText + " - " + verse.getBook() + " " + verse.getChapter() + ":" + verse.getVerseNo());
-			e.printStackTrace();
-		}
-		System.out.println("ERROR for the word " + word);
-		System.out.println(verseText + " - " + verse.getBook() + " " + verse.getChapter() + ":" + verse.getVerseNo());
-		return "ERROR";
 	}
 
 	private static void doPageSettings(XWPFDocument document) {

@@ -56,7 +56,7 @@ public class WordDocument {
 	private static Map<String, TreeSet<String>> indexMap = new TreeMap<String, TreeSet<String>>();
 
 	private static String LANGUAGE_NAME = "ta";
-	
+
 	private static int totalReferencesCount = 0;
 	private static int uniqueBookMarkCounter = 1;
 
@@ -65,7 +65,7 @@ public class WordDocument {
 		initSystemOutSettings();
 
 		createLanguageInstance();
-		
+
 		File file = new File(BibleConcordanceCreator.bibleSourcePath);
 
 		System.out.println("TheWord Bible loading started...");
@@ -79,7 +79,7 @@ public class WordDocument {
 		if (bible != null) {
 			System.out.println("TheWord Bible loaded successfully...");
 		}
-		
+
 		LANGUAGE_NAME = bible.getLanguageCode();
 
 		System.out.println("Started Creating Words Map");
@@ -88,9 +88,9 @@ public class WordDocument {
 				for (Verse verse : chapter.getVerses()) {
 					String[] words = verse.getText().split("[\\s']");
 					for (String word : words) {
-						//word = word.replaceAll("[\\\"\\(\\)\\-\\.\\:\\,\\;]", "");
+						// word = word.replaceAll("[\\\"\\(\\)\\-\\.\\:\\,\\;]", "");
 						word = word.replaceAll("[\\\"\\(\\)\\.\\:\\,\\;\\}\\{\\?\\]\\[]", "");
-						word = word.replaceAll("“","").replaceAll("14","").replaceAll("6","").replaceAll("20","");
+						word = word.replaceAll("“", "").replaceAll("14", "").replaceAll("6", "").replaceAll("20", "");
 						if (!word.trim().equals("")) {
 							addToWordsMap(book, chapter, verse, word);
 						}
@@ -98,10 +98,10 @@ public class WordDocument {
 				}
 			}
 		}
-		//System.out.println("Total No of Words: " + wordsMap.size());
+		// System.out.println("Total No of Words: " + wordsMap.size());
 		System.out.println("Completed Creating Words Map");
 
-		String wordDocFolder = BibleConcordanceCreator.outputPath + "\\" + LANGUAGE_NAME + "\\";
+		String wordDocFolder = BibleConcordanceCreator.outputPath + "\\WordDocument\\" + LANGUAGE_NAME + "\\";
 		File wordDocFolderFile = new File(wordDocFolder);
 		wordDocFolderFile.mkdirs();
 
@@ -157,11 +157,11 @@ public class WordDocument {
 
 				int counter = 1;
 				for (String word : wordList) {
-					if(LIMIT_OUTPUT) {
+					if (LIMIT_OUTPUT) {
 						if (counter > 1000) {
 							break;
 						}
-					 	counter++;
+						counter++;
 					}
 
 					paragraph = document.createParagraph();
@@ -179,7 +179,7 @@ public class WordDocument {
 					paragraph.getCTP().addNewBookmarkEnd().setId(BigInteger.valueOf(uniqueBookMarkCounter));
 					uniqueBookMarkCounter++;
 					run.setText(" ");
-					
+
 					for (VerseDetails verse : wordsMap.get(word)) {
 						totalReferencesCount++;
 						paragraph = document.createParagraph();
@@ -188,16 +188,16 @@ public class WordDocument {
 						run.setFontFamily(language.getVERSE_FONT());
 						run.setFontSize(10);// language.getVERSE_FONT_SIZE());
 						run.setBold(false);
-						if("en".equalsIgnoreCase(LANGUAGE_NAME)) {
-							run.setText(StringUtils.capitalize(getOneLiner(word, verse)));
-						}else {
-							run.setText(getOneLiner(word, verse));
+						if ("en".equalsIgnoreCase(LANGUAGE_NAME)) {
+							run.setText(StringUtils.capitalize(Utils.getOneLiner(word, verse, LANGUAGE_NAME)));
+						} else {
+							run.setText(Utils.getOneLiner(word, verse, LANGUAGE_NAME));
 						}
 					}
 				}
 			}
 			System.out.println("Pages Creation completed");
-			
+
 			// Write the Document in file system
 
 			FileOutputStream out = new FileOutputStream(outputFile);
@@ -211,7 +211,7 @@ public class WordDocument {
 		}
 
 		outputStatistics();
-		
+
 		System.out.println("Total Time taken :: " + clock.elapsedTime() + " seconds");
 	}
 
@@ -222,13 +222,17 @@ public class WordDocument {
 		paragraph = document.createParagraph();
 		paragraph.setAlignment(ParagraphAlignment.CENTER);
 		run = paragraph.createRun();
-		run.addBreak();run.addBreak();run.addBreak();run.addBreak();run.addBreak();
+		run.addBreak();
+		run.addBreak();
+		run.addBreak();
+		run.addBreak();
+		run.addBreak();
 		run.setFontFamily(language.getString(BibleConcordanceLanguage.STR_THANKS_FONT));
 		run.setFontSize(language.getInt(BibleConcordanceLanguage.STR_THANKS_FONT_SIZE));
 		run.setBold(true);
 		run.setText(language.getString(BibleConcordanceLanguage.STR_THANKS_TO));
 		run.addBreak();
-		
+
 		run = paragraph.createRun();
 		run.setFontFamily(language.getString(BibleConcordanceLanguage.STR_THANKS_FONT));
 		run.setFontSize(language.getInt(BibleConcordanceLanguage.STR_THANKS_FONT_SIZE));
@@ -301,48 +305,6 @@ public class WordDocument {
 		run.addBreak();
 
 		run.addBreak(BreakType.PAGE);
-	}
-
-	private static String getOneLiner(String word, VerseDetails verse) {
-		int beginningIndex = 0;
-		int endingIndex = 0;
-		String verseText = verse.getVerse();
-		if("en".equalsIgnoreCase(LANGUAGE_NAME)) {
-			verseText = verseText.toLowerCase();
-			word = word.toLowerCase();
-		}
-
-		beginningIndex = verseText.indexOf(word);
-		endingIndex = verseText.length();
-		try {
-			String temp = verseText.substring(beginningIndex, endingIndex);
-			String[] ar = temp.split(" ");
-			String reference = verse.getBook() + " " + verse.getChapter() + ":" + verse.getVerseNo();
-			if (ar.length > 2) {
-				return ar[0] + " " + ar[1] + " " + ar[2] + " - " + reference;
-			} else if (ar.length > 1) {
-				return ar[0] + " " + ar[1] + " - " + reference;
-			} else {
-				beginningIndex = 0;
-				endingIndex = verseText.lastIndexOf(word);
-				temp = verseText.substring(beginningIndex, endingIndex);
-				ar = temp.split(" ");
-				if (ar.length > 1) {
-					return ar[ar.length - 2] + " " + ar[ar.length - 1] + " " + word + " - " + reference;
-				} else {
-					return ar[ar.length - 1] + " " + word + " - " + reference;
-				}				
-			}
-		} catch (java.lang.StringIndexOutOfBoundsException e) {
-			System.out.println(word);
-			System.out.println(
-					verseText + " - " + verse.getBook() + " " + verse.getChapter() + ":" + verse.getVerseNo());
-			e.printStackTrace();
-		}
-		System.out.println("ERROR for the word " + word);
-		System.out.println(
-				verseText + " - " + verse.getBook() + " " + verse.getChapter() + ":" + verse.getVerseNo());
-		return "ERROR";
 	}
 
 	private static void doPageSettings(XWPFDocument document) {
@@ -496,7 +458,7 @@ public class WordDocument {
 		paragraph.setAlignment(ParagraphAlignment.CENTER);
 		paragraph.setStyle("Heading1");
 
-		//Index Page Heading
+		// Index Page Heading
 		run = paragraph.createRun();
 		run.setFontFamily(language.getSTR_INDEX_TITLE_FONT());
 		run.setFontSize(language.getSTR_INDEX_TITLE_FONT_SIZE());
@@ -510,22 +472,23 @@ public class WordDocument {
 		bookmark.setId(BigInteger.valueOf(uniqueBookMarkCounter));
 		paragraph.getCTP().addNewBookmarkEnd().setId(BigInteger.valueOf(uniqueBookMarkCounter));
 		uniqueBookMarkCounter++;
-		
+
 		paragraph = document.createParagraph();
 		paragraph.setSpacingAfter(language.getPARAGRAPH_SPACING_AFTER());
 		for (Map.Entry<String, TreeSet<String>> entry : indexMap.entrySet()) {
 			String indexLetter = entry.getKey();
-			createAnchorLink(paragraph, indexLetter + " (" + entry.getValue().size() +")", language.getString(BibleConcordanceLanguage.STR_INDEX_BOOKMARK_PREFIX) + indexLetter, false);
+			createAnchorLink(paragraph, indexLetter + " (" + entry.getValue().size() + ")",
+					language.getString(BibleConcordanceLanguage.STR_INDEX_BOOKMARK_PREFIX) + indexLetter, false);
 		}
-		
+
 		for (Map.Entry<String, TreeSet<String>> entry : indexMap.entrySet()) {
 			String indexLetter = entry.getKey();
-			
+
 			paragraph = document.createParagraph();
 			paragraph.setAlignment(ParagraphAlignment.CENTER);
 			run = paragraph.createRun();
-			//run.addBreak(BreakType.PAGE);
-			
+			// run.addBreak(BreakType.PAGE);
+
 			run.setFontFamily(language.getSTR_INDEX_FONT());
 			run.setFontSize(language.getSTR_INDEX_FONT_SIZE());
 			run.setText(indexLetter);
@@ -538,45 +501,46 @@ public class WordDocument {
 			bookmark.setId(BigInteger.valueOf(uniqueBookMarkCounter));
 			paragraph.getCTP().addNewBookmarkEnd().setId(BigInteger.valueOf(uniqueBookMarkCounter));
 			uniqueBookMarkCounter++;
-			
+
 			paragraph = document.createParagraph();
 			paragraph.setSpacingAfter(language.getPARAGRAPH_SPACING_AFTER());
 			int counter = 1;
-			for(String word: entry.getValue()) {
-				if(LIMIT_OUTPUT) {
+			for (String word : entry.getValue()) {
+				if (LIMIT_OUTPUT) {
 					if (counter > 10) {
 						break;
 					}
-				 	counter++;
+					counter++;
 				}
 				createAnchorLink(paragraph, word + " (" + wordsMap.get(word).size() + ")", word, true);
 			}
-			
+
 		}
 
 		System.out.println("Index Creation Completed...");
 
 	}
 
-	private static void createAnchorLink(XWPFParagraph paragraph, String linkText, String bookMarkName, boolean subIndex) {
+	private static void createAnchorLink(XWPFParagraph paragraph, String linkText, String bookMarkName,
+			boolean subIndex) {
 		CTHyperlink cthyperLink = paragraph.getCTP().addNewHyperlink();
 		cthyperLink.setAnchor(bookMarkName);
 		cthyperLink.addNewR();
 		XWPFHyperlinkRun hyperlinkrun = new XWPFHyperlinkRun(cthyperLink, cthyperLink.getRArray(0), paragraph);
-		if(subIndex) {
+		if (subIndex) {
 			hyperlinkrun.setFontFamily(language.getString(BibleConcordanceLanguage.STR_SUB_INDEX_FONT));
 			hyperlinkrun.setFontSize(language.getInt(BibleConcordanceLanguage.STR_SUB_INDEX_FONT_SIZE));
-		}else {
+		} else {
 			hyperlinkrun.setFontFamily(language.getSTR_INDEX_FONT());
 			hyperlinkrun.setFontSize(language.getSTR_INDEX_FONT_SIZE());
-		}		
+		}
 		hyperlinkrun.setText(linkText);// .replace("1-1","1"));
 		hyperlinkrun.setColor("0000FF");
 		hyperlinkrun.setUnderline(UnderlinePatterns.SINGLE);
 		XWPFRun run = paragraph.createRun();
 		run.setFontFamily(language.getSTR_INDEX_FONT());
 		run.setFontSize(language.getSTR_INDEX_FONT_SIZE());
-		//run.setText("   ");
+		// run.setText(" ");
 		run.addCarriageReturn();
 	}
 
@@ -612,8 +576,8 @@ public class WordDocument {
 		if ("ta".equalsIgnoreCase(LANGUAGE_NAME) && word.equals("43")) {
 			return;
 		}
-		if("en".equalsIgnoreCase(LANGUAGE_NAME)) {
-			if(word.length()==1) {
+		if ("en".equalsIgnoreCase(LANGUAGE_NAME)) {
+			if (word.length() == 1) {
 				return;
 			}
 			word = StringUtils.capitalize(word);
@@ -621,10 +585,10 @@ public class WordDocument {
 		List<VerseDetails> list = wordsMap.get(word);
 		boolean alreadyExists = false;
 		String bookName = null;
-		if(USE_SHORT_NAMES) {
+		if (USE_SHORT_NAMES) {
 			bookName = book.getShortName();
-		}else if (CHANGE_BOOK_NAMES_TO_NON_ENGLISH) {
-			bookName = book.getLongName();//getBookName(book.getBook(), getNonEnglishBookNames());
+		} else if (CHANGE_BOOK_NAMES_TO_NON_ENGLISH) {
+			bookName = book.getLongName();// getBookName(book.getBook(), getNonEnglishBookNames());
 		} else {
 			bookName = book.getShortName();
 		}

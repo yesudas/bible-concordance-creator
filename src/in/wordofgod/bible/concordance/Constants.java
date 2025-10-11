@@ -11,5 +11,7 @@ public class Constants {
 	public static final String PDF = "PDF";
 	public static final String WORD_DOCUMENT = "WORDDOCUMENT";
 	public static final String WORD_DOCUMENT_BY_LETTERS = "WORDDOCUMENTBYLETTERS";
+	public static final String JSON = "JSON";
+	public static final String SQLITE = "SQLITE";
 
 }
