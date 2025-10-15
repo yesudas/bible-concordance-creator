@@ -43,7 +43,7 @@ public class Json {
 	private static int uniqueBookMarkCounter;
 
 	private static Bible bible;
-	
+
 	private static void init() {
 		wordsMap = new TreeMap<String, List<VerseDetails>>();
 		indexMap = new TreeMap<String, TreeSet<String>>();
@@ -60,9 +60,9 @@ public class Json {
 
 	public static void create() throws FileNotFoundException, IOException {
 		StopClock clock = new StopClock();
-		
+
 		init();
-		
+
 		initSystemOutSettings();
 
 		createLanguageInstance();
@@ -83,25 +83,10 @@ public class Json {
 
 		LANGUAGE_NAME = bible.getLanguageCode();
 
-		System.out.println("Started Creating Words Map");
-		for (Book book : bible.getBooks()) {
-			for (Chapter chapter : book.getChapters()) {
-				for (Verse verse : chapter.getVerses()) {
-					verse.setText(Utils.normalizeVerse(verse));
-					String[] words = verse.getText().split("[\\s']");
-					for (String word : words) {
-						word = Utils.normalizeWord(word);
-						if (!word.trim().equals("")) {
-							addToWordsMap(book, chapter, verse, word);
-						}
-					}
-				}
-			}
-		}
-		System.out.println("Completed Creating Words Map");
+		buildWordsMap();
 
-		String outputFolder = BibleConcordanceCreator.outputPath + "\\Json\\" + LANGUAGE_NAME + "\\" + bible.getAbbr()
-				+ "\\";
+		String outputFolder = BibleConcordanceCreator.outputPath + "/Json/" + LANGUAGE_NAME + "/" + bible.getAbbr()
+				+ "/";
 
 		Concordance concordance = new Concordance();
 		concordance.setTitle(language.getSUB_TITLE_1());
@@ -130,19 +115,23 @@ public class Json {
 						totalReferencesCount++;
 						wordFile.addVerse(Utils.getVerseInfo(verse, LANGUAGE_NAME));
 					}
-					// Write dictionary object into L-lord.json file
-					ObjectMapper mapper = new ObjectMapper();
-					String outputPath = outputFolder + "words\\" + indexLetter + "\\";
-					(new File(outputPath)).mkdirs();
-					File outputFile = new File(outputPath + indexLetter + "-" + word + EXTENSION);
-					mapper.writer().writeValue(outputFile, wordFile);
-					System.out.println("JSON created successfully: " + indexLetter + "-" + word + " :: "
-							+ outputFile.getAbsolutePath());
+					try {
+						// Write dictionary object into L-lord.json file
+						ObjectMapper mapper = new ObjectMapper();
+						String outputPath = outputFolder + "words/" + indexLetter + "/";
+						(new File(outputPath)).mkdirs();
+						File outputFile = new File(outputPath + indexLetter + "-" + word + EXTENSION);
+						mapper.writer().writeValue(outputFile, wordFile);
+						System.out.println("JSON created successfully: " + indexLetter + "-" + word + " :: "
+								+ outputFile.getAbsolutePath());
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
 				}
 
 				// Write dictionary object into L.json file
 				ObjectMapper mapper = new ObjectMapper();
-				String outputPath = outputFolder + "letters\\";
+				String outputPath = outputFolder + "letters/";
 				(new File(outputPath)).mkdirs();
 				File outputFile = new File(outputPath + indexLetter + EXTENSION);
 				mapper.writer().writeValue(outputFile, letterFile);
@@ -151,7 +140,6 @@ public class Json {
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println("FileNotFoundException occurs.." + e.getMessage());
 			}
 		}
 
@@ -167,6 +155,25 @@ public class Json {
 		wordsMap.clear();
 		indexMap.clear();
 		System.out.println("Total Time taken :: " + clock.elapsedTime() + " seconds");
+	}
+
+	private static void buildWordsMap() {
+		System.out.println("Started Creating Words Map");
+		for (Book book : bible.getBooks()) {
+			for (Chapter chapter : book.getChapters()) {
+				for (Verse verse : chapter.getVerses()) {
+					verse.setText(Utils.normalizeVerse(verse));
+					String[] words = verse.getText().split("[\\s']");
+					for (String word : words) {
+						word = Utils.normalizeWord(word);
+						if (!word.trim().equals("")) {
+							addToWordsMap(book, chapter, verse, word);
+						}
+					}
+				}
+			}
+		}
+		System.out.println("Completed Creating Words Map");
 	}
 
 	private static void createLanguageInstance() {

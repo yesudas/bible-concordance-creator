@@ -79,7 +79,7 @@ public class Utils {
 		while (tempVerse.matches(".*\\([^()]*\\).*")) {
 			tempVerse = tempVerse.replaceAll("\\([^()]*\\)", "");
 		}
-		// 6,000 
+		// 6,000 - ([0-9]+),([0-9]+)
 		tempVerse = tempVerse.replaceAll("(?<=\\d),(?=\\d)", "");		
 		// அகன்றது.எனவே
 		tempVerse = tempVerse.replace(".", " ");
@@ -111,6 +111,8 @@ public class Utils {
 		tempVerse = tempVerse.replace("—", " ");
 		// ῾ -> remove
 		tempVerse = tempVerse.replace("῾", " ");
+		// ` -> remove
+		tempVerse = tempVerse.replace("`", " ");
 
 		// Strip tags + decode entities
 		tempVerse = Jsoup.parse(tempVerse).text();
