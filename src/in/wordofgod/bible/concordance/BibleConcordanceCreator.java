@@ -43,6 +43,8 @@ public class BibleConcordanceCreator {
 					bibleSourcePath = bible;
 					if (bibleSourcePath.endsWith(".ont")) {
 						bibleInformationPath = bibleSourcePath.replace(".ont", "-information.ini");
+					} else if (bibleSourcePath.endsWith(".ot")) {
+						bibleInformationPath = bibleSourcePath.replace(".ot", "-information.ini");
 					} else {
 						bibleInformationPath = bibleSourcePath.replace(".nt", "-information.ini");
 					}
@@ -57,6 +59,8 @@ public class BibleConcordanceCreator {
 		if (bibleInformationPath == null) {
 			if (bibleSourcePath.endsWith(".ont")) {
 				bibleInformationPath = bibleSourcePath.replace(".ont", "-information.ini");
+			} else if (bibleSourcePath.endsWith(".ot")) {
+				bibleInformationPath = bibleSourcePath.replace(".ot", "-information.ini");
 			} else {
 				bibleInformationPath = bibleSourcePath.replace(".nt", "-information.ini");
 			}

@@ -16,6 +16,70 @@ import in.wordofgod.bible.parser.vosgson.Verse;
 
 public class Utils {
 
+	static String getLanguageNameFromCode(String languageCode) {
+		if (languageCode == null) {
+			return "Unknown Language";
+		}
+
+		switch (languageCode.toLowerCase()) {
+		case "ta":
+			return "தமிழ்";
+		case "en":
+			return "English";
+		case "kn":
+			return "ಕನ್ನಡ";
+		case "te":
+			return "తెలుగు";
+		case "hi":
+			return "हिन्दी";
+		case "ml":
+			return "മലയാളം";
+		case "he":
+		case "iw":
+			return "Hebrew";
+		case "grc":
+			return "Greek";
+		case "el":
+			return "Greek";
+		case "ar":
+			return "Arabic";
+		case "la":
+			return "Latin";
+		case "awa":
+			return "Awadhi";
+		case "bn":
+			return "Bengali";
+		case "gu":
+			return "Gujarati";
+		case "mai":
+			return "Maithili";
+		case "mni":
+			return "Manipuri";
+		case "mr":
+			return "Marathi";
+		case "ms":
+			return "Malay";
+		case "ne":
+			return "Nepali";
+		case "original":
+			return "Original";
+		case "or":
+			return "Odia";
+		case "pa":
+			return "Punjabi";
+		case "sa":
+			return "Sanskrit";
+		case "si":
+			return "Sinhala";
+		case "ur":
+			return "Urdu";
+		default:
+			// Log unknown language codes for user to be aware
+			System.out.println("Warning: Unknown language code encountered: " + languageCode);
+			return "Unknown Language";
+		}
+	}
+
 	static VerseInfo getVerseInfo(VerseDetails verse, String LANGUAGE_NAME) {
 		VerseInfo verseInfo = new VerseInfo();
 		if ("en".equalsIgnoreCase(LANGUAGE_NAME)) {
@@ -74,16 +138,16 @@ public class Utils {
 	}
 
 	static String normalizeVerse(Verse verse) {
-		String tempVerse = verse.getText();
+		String tempVerse = verse.getUnParsedText();
 		// (கவலை வேண்டாம்) ((மத்தேயு 6:25-34,19-21))
 		while (tempVerse.matches(".*\\([^()]*\\).*")) {
 			tempVerse = tempVerse.replaceAll("\\([^()]*\\)", "");
 		}
 		// 6,000 - ([0-9]+),([0-9]+)
-		tempVerse = tempVerse.replaceAll("(?<=\\d),(?=\\d)", "");		
+		tempVerse = tempVerse.replaceAll("(?<=\\d),(?=\\d)", "");
 		// அகன்றது.எனவே
 		tempVerse = tempVerse.replace(".", " ");
-		//அகமகிழ்ந்திருக்க,”சிம்சோனைக் - remove comma
+		// அகமகிழ்ந்திருக்க,”சிம்சோனைக் - remove comma
 		tempVerse = tempVerse.replace(",", " ");
 		// ” - remove quotes
 		tempVerse = tempVerse.replace("”", " ");
@@ -114,20 +178,35 @@ public class Utils {
 		// ` -> remove
 		tempVerse = tempVerse.replace("`", " ");
 
-		// Strip tags + decode entities
-		tempVerse = Jsoup.parse(tempVerse).text();
+		// Strip tags + decode entities, leave the Strong numbers as is
+		// e.g., <WH1234>, <WG1234>
+		tempVerse = stripTagsAndDecodeEntities(tempVerse);
 
 		// Remove extra spaces
-		tempVerse = tempVerse.replace("   ", " ");
-		tempVerse = tempVerse.replace("  ", " ");
+		tempVerse = tempVerse.replaceAll("\\s+", " ").trim();
 		return tempVerse;
+	}
+	
+	private static String stripTagsAndDecodeEntities(String text) {
+		// First, temporarily replace WH and WG tags with placeholders to preserve them
+		// These are standalone tags, not HTML-style with closing tags
+		String tempText = text.replaceAll("<(WH\\d+)>", "PLACEHOLDER_WH_$1_PLACEHOLDER");
+		tempText = tempText.replaceAll("<(WG\\d+)>", "PLACEHOLDER_WG_$1_PLACEHOLDER");
+		
+		// Use Jsoup to strip HTML tags and decode entities
+		tempText = Jsoup.parse(tempText).text();
+		
+		// Restore the WH and WG tags
+		tempText = tempText.replaceAll("PLACEHOLDER_WH_(WH\\d+)_PLACEHOLDER", "<$1>");
+		tempText = tempText.replaceAll("PLACEHOLDER_WG_(WG\\d+)_PLACEHOLDER", "<$1>");
+		
+		return tempText;
 	}
 
 	static String normalizeWord(String word) {
 		word = word.replaceAll("[\\\"\\(\\)\\.\\:\\,\\;\\}\\{\\?\\]\\[]", "");
-		word = word.replaceAll("“", "").replaceAll("14", "").replaceAll("6", "").replaceAll("20", "").replaceAll("43",
-				"");
-		word = word.replace("”", "");
+		// word = word.replaceAll("14", "").replaceAll("6", "").replaceAll("20",
+		// "").replaceAll("43","");
 		return word;
 	}
 
@@ -153,6 +232,24 @@ public class Utils {
 		db.getOptions().setAutovacuum(true);
 		db.beginTransaction(SqlJetTransactionMode.WRITE);
 		db.getOptions().setUserVersion(0);
+	}
+
+	static String normaliseStrongNumber(String unParsedText) {
+		if (unParsedText == null || unParsedText.isEmpty()) {
+			return unParsedText;
+		}
+		
+		String normalizedText = unParsedText;
+		
+		// Transform Hebrew Strong's references: <WH123> -> H123
+		normalizedText = normalizedText.replaceAll("<WH(\\d+)>", "H$1");
+		normalizedText = normalizedText.replaceAll("<wh(\\d+)>", "H$1");
+		
+		// Transform Greek Strong's references: <WG456> -> G456
+		normalizedText = normalizedText.replaceAll("<WG(\\d+)>", "G$1");
+		normalizedText = normalizedText.replaceAll("<wg(\\d+)>", "G$1");
+		
+		return normalizedText;
 	}
 
 }

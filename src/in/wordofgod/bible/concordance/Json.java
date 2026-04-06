@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.text.BreakIterator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,8 +14,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -69,6 +68,7 @@ public class Json {
 
 		File file = new File(BibleConcordanceCreator.bibleSourcePath);
 
+		System.out.println("Processing the file :: " + BibleConcordanceCreator.bibleSourcePath);
 		System.out.println("TheWord Bible loading started...");
 
 		try {
@@ -85,8 +85,8 @@ public class Json {
 
 		buildWordsMap();
 
-		String outputFolder = BibleConcordanceCreator.outputPath + "/Json/" + LANGUAGE_NAME + "/" + bible.getAbbr()
-				+ "/";
+		String outputFolder = Paths.get(BibleConcordanceCreator.outputPath, "Json",
+				Utils.getLanguageNameFromCode(LANGUAGE_NAME), bible.getAbbr()).toString() + File.separator;
 
 		Concordance concordance = new Concordance();
 		concordance.setTitle(language.getSUB_TITLE_1());
@@ -118,7 +118,7 @@ public class Json {
 					try {
 						// Write dictionary object into L-lord.json file
 						ObjectMapper mapper = new ObjectMapper();
-						String outputPath = outputFolder + "words/" + indexLetter + "/";
+						String outputPath = Paths.get(outputFolder, "words", indexLetter).toString() + File.separator;
 						(new File(outputPath)).mkdirs();
 						File outputFile = new File(outputPath + indexLetter + "-" + word + EXTENSION);
 						mapper.writer().writeValue(outputFile, wordFile);
@@ -131,7 +131,7 @@ public class Json {
 
 				// Write dictionary object into L.json file
 				ObjectMapper mapper = new ObjectMapper();
-				String outputPath = outputFolder + "letters/";
+				String outputPath = Paths.get(outputFolder, "letters").toString() + File.separator;
 				(new File(outputPath)).mkdirs();
 				File outputFile = new File(outputPath + indexLetter + EXTENSION);
 				mapper.writer().writeValue(outputFile, letterFile);
@@ -144,7 +144,7 @@ public class Json {
 		}
 
 		concordance.getBibleInfo().setTotalReferences(totalReferencesCount);
-		// Write dictionary object into L.json file
+		// Write concordance object into Concordance.json file
 		ObjectMapper mapper = new ObjectMapper();
 		File outputFile = new File(outputFolder + "Concordance" + EXTENSION);
 		mapper.writer().writeValue(outputFile, concordance);
@@ -165,8 +165,8 @@ public class Json {
 					verse.setText(Utils.normalizeVerse(verse));
 					String[] words = verse.getText().split("[\\s']");
 					for (String word : words) {
-						word = Utils.normalizeWord(word);
-						if (!word.trim().equals("")) {
+						word = Utils.normalizeWord(word).trim();
+						if (!word.equals("")) {
 							addToWordsMap(book, chapter, verse, word);
 						}
 					}
@@ -223,7 +223,7 @@ public class Json {
 			timeStamp = timeStamp.replaceAll(" ", "-");
 			File outputFolder = new File(BibleConcordanceCreator.outputPath);
 			outputFolder.mkdirs();
-			File outputFile = new File(BibleConcordanceCreator.outputPath + "/output-restults " + timeStamp + ".txt");
+			File outputFile = new File(Paths.get(BibleConcordanceCreator.outputPath, "output-restults " + timeStamp + ".txt").toString());
 			System.out.println("Output-Results are stored at :: " + outputFile.getAbsolutePath());
 			System.setOut(new PrintStream(outputFile));
 		}
@@ -245,16 +245,33 @@ public class Json {
 	}
 
 	private static void addToWordsMap(Book book, Chapter chapter, Verse verse, String word) {
-		if ("ta".equalsIgnoreCase(LANGUAGE_NAME) && word.equals("43")) {
-			return;
-		}
 		if ("en".equalsIgnoreCase(LANGUAGE_NAME)) {
 			if (word.length() == 1) {
 				return;
 			}
-			word = StringUtils.capitalize(word);
+			word = word.toLowerCase();
 		}
-		List<VerseDetails> list = wordsMap.get(word);
+
+		// Transform Strong's references before processing
+		boolean strongsNumber = false;
+		if (word.matches("<wh\\d+>")) {
+			// Transform <WHXXXXX> to HXXXXX
+			word = word.replaceAll("<wh(\\d+)>", "H$1");
+			strongsNumber = true;
+		} else if (word.matches("<wg\\d+>")) {
+			// Transform <WGXXXXX> to GXXXXX
+			word = word.replaceAll("<wg(\\d+)>", "G$1");
+			strongsNumber = true;
+		}else if (word.matches("<WH\\d+>")) {
+			// Transform <WHXXXXX> to HXXXXX
+			word = word.replaceAll("<WH(\\d+)>", "H$1");
+			strongsNumber = true;
+		} else if (word.matches("<WG\\d+>")) {
+			// Transform <WGXXXXX> to GXXXXX
+			word = word.replaceAll("<WG(\\d+)>", "G$1");
+			strongsNumber = true;
+		}
+
 		boolean alreadyExists = false;
 		String bookName = null;
 		if (USE_SHORT_NAMES) {
@@ -264,6 +281,10 @@ public class Json {
 		} else {
 			bookName = book.getShortName();
 		}
+		if (bookName == null || bookName.trim().equals("")) {
+			bookName = book.getThreeLetterCode();
+		}
+		List<VerseDetails> list = wordsMap.get(word);
 		if (list != null) {
 			for (VerseDetails vd : list) {
 				if (vd.getBook().equalsIgnoreCase(bookName) && vd.getChapter().equals(chapter.getChapter())
@@ -273,37 +294,67 @@ public class Json {
 				}
 			}
 			if (!alreadyExists) {
-				list.add(new VerseDetails(bookName, chapter.getChapter(), verse.getNumber(), verse.getText()));
+				list.add(new VerseDetails(bookName, chapter.getChapter(), verse.getNumber(),
+						Utils.normaliseStrongNumber(verse.getUnParsedText())));
 			}
 		} else {
 			list = new ArrayList<VerseDetails>();
-			list.add(new VerseDetails(bookName, chapter.getChapter(), verse.getNumber(), verse.getText()));
+			list.add(new VerseDetails(bookName, chapter.getChapter(), verse.getNumber(),
+					Utils.normaliseStrongNumber(verse.getUnParsedText())));
 			wordsMap.put(word, list);
 		}
 		if (!alreadyExists) {
-			String actualLetter = null;
-			String firstLetter = "" + word.charAt(0);
-			String[] letterSet = language.getCharMap().get(firstLetter);
-			if (letterSet != null) {
-				for (String letter : letterSet) {
-					if (word.startsWith(letter)) {
-						actualLetter = letter;
-						break;
-					}
-				}
+			// Determine the actual letter/category for indexing
+			String actualLetter;
+
+			// Check if word is a number
+			if (word.matches("\\d+")) {
+				actualLetter = "Numbers";
 			}
-			if (actualLetter == null) {
-				actualLetter = firstLetter;
+			// Check if original word was Strong's reference (use original word for pattern
+			// matching)
+			else if (strongsNumber) {
+				actualLetter = "Strongs";
 			}
+			// Use universal method to get first grapheme cluster for regular words
+			else {
+				actualLetter = getFirstGraphemeCluster(word);
+			}
+
 			TreeSet<String> wordsList = indexMap.get(actualLetter);
 			if (!actualLetter.equalsIgnoreCase("்")) {
 				if (wordsList == null) {
-
 					wordsList = new TreeSet<String>();
 					indexMap.put(actualLetter, wordsList);
 				}
 				wordsList.add(word);
 			}
+		}
+	}
+
+	/**
+	 * Gets the first grapheme cluster from a word using BreakIterator. This works
+	 * universally for all languages including English, Tamil, Kannada, Hindi,
+	 * Hebrew, Arabic, etc. Examples: - English: "Delhi" -> "D" - Tamil: "தேவன்" ->
+	 * "தே" - Kannada: "ದೇವರು" -> "ದೇ" - Hindi: "देवता" -> "दे"
+	 */
+	private static String getFirstGraphemeCluster(String word) {
+		if (word == null || word.isEmpty()) {
+			return "";
+		}
+
+		// Use BreakIterator to properly handle grapheme clusters across all languages
+		BreakIterator charIterator = BreakIterator.getCharacterInstance();
+		charIterator.setText(word);
+
+		int start = charIterator.first();
+		int end = charIterator.next();
+
+		if (end != BreakIterator.DONE) {
+			return word.substring(start, end);
+		} else {
+			// Fallback to first character if BreakIterator fails
+			return word.substring(0, 1);
 		}
 	}
 
