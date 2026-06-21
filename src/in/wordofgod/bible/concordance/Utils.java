@@ -139,10 +139,14 @@ public class Utils {
 
 	static String normalizeVerse(Verse verse) {
 		String tempVerse = verse.getUnParsedText();
-		// (கவலை வேண்டாம்) ((மத்தேயு 6:25-34,19-21))
-		while (tempVerse.matches(".*\\([^()]*\\).*")) {
-			tempVerse = tempVerse.replaceAll("\\([^()]*\\)", "");
+		// Remove cross-references in parentheses (always contain chapter:verse digits)
+		// e.g., (மத்தேயு 6:25-34,19-21) or ((மத்தேயு 6:25-34,19-21))
+		while (tempVerse.matches(".*\\([^()]*\\d[^()]*\\).*")) {
+			tempVerse = tempVerse.replaceAll("\\([^()]*\\d[^()]*\\)", "");
 		}
+		// Remove remaining parenthesis characters, keeping words like (தேவன்)
+		tempVerse = tempVerse.replace("(", " ");
+		tempVerse = tempVerse.replace(")", " ");
 		// 6,000 - ([0-9]+),([0-9]+)
 		tempVerse = tempVerse.replaceAll("(?<=\\d),(?=\\d)", "");
 		// அகன்றது.எனவே
